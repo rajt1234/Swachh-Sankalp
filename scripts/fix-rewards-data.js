@@ -34,7 +34,7 @@ async function fixData() {
     console.error('Error:', existingError)
   } else if (existingComplaints && existingComplaints.length > 0) {
     existingComplaints.forEach(c => {
-      console.log(`  ${c.id.slice(0,8)} => user: ${c.user_id}, status: ${c.status}`)
+      console.log(`  ${c.id.slice(0, 8)} => user: ${c.user_id}, status: ${c.status}`)
     })
   } else {
     console.log('  No complaints found.')

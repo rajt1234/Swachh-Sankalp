@@ -108,32 +108,7 @@ export default function SignupPage() {
       return
     }
 
-    let userId = ''
-    try {
-      userId = await generateUniqueUserId(formData.role)
-    } catch (err) {
-      console.error('Failed to generate user ID:', err)
-      const timestamp = Date.now().toString().slice(-5)
-      const prefix = formData.role === 'municipality' ? 'M' : formData.role === 'recycler' ? 'R' : 'C'
-      userId = `${prefix}${timestamp}`
-    }
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert({
-        id: user.id,
-        email: user.email,
-        full_name: formData.full_name,
-        phone: fullPhone,
-        city: formData.district,
-        state: formData.state,
-        role: formData.role,
-        user_id: userId,
-      }, { onConflict: 'id' })
-
-    if (profileError) {
-      console.error('Profile creation error:', profileError)
-    }
 
     setShowConfirmation(true)
     setLoading(false)
