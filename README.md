@@ -4,7 +4,7 @@
 
 Swachh Sankalp is a technology-driven waste-management project focused on encouraging responsible waste disposal, improving waste reporting, and promoting community participation in environmental sustainability. The project aims to make waste management smarter and more accessible through digital solutions, AI-assisted analysis, and community engagement.
 
-🚀 **Live Demo:** [Explore Swachh Sankalp](YOUR_VERCEL_DEPLOYMENT_URL)
+🚀 **Live Demo:** [Explore Swachh Sankalp](https://swachh-sankalp-mu.vercel.app/)
 
 ## 🏆 Achievements
 
@@ -21,7 +21,7 @@ Improper waste disposal and inefficient waste-monitoring practices contribute to
 - Lack of incentives for community participation.
 - Challenges in tracking cleanliness initiatives and their impact.
 
-## 💡 Our Solution
+## 💡 My Solution
 
 Swachh Sankalp aims to address these challenges through a digital waste-management platform that supports community participation and smarter waste monitoring.
 
