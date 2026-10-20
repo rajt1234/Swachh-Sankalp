@@ -2,8 +2,4 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
-
-```bash
 Open [https://swachh-sankalp-mu.vercel.app/](https://swachh-sankalp-mu.vercel.app/) with your browser to see the result.
-```
