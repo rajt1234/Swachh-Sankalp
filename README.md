@@ -14,4 +14,4 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [https://swachh-sankalp-mu.vercel.app/](https://swachh-sankalp-mu.vercel.app/) with your browser to see the result.
