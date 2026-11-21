@@ -127,8 +127,28 @@ export default function ChatbotPage() {
     }
   }, [messages, isTyping])
 
+  // Map i18n locale to BCP 47 language codes for Speech Recognition
+  const getSpeechRecognitionLang = (loc: string): string => {
+    const map: Record<string, string> = {
+      'en': 'en-IN',
+      'hi': 'hi-IN',
+      'bn': 'bn-IN',
+      'ta': 'ta-IN',
+      'te': 'te-IN',
+      'mr': 'mr-IN',
+      'gu': 'gu-IN',
+      'kn': 'kn-IN',
+      'ml': 'ml-IN',
+      'pa': 'pa-IN',
+      'or': 'or-IN',
+      'as': 'as-IN',
+      'ur': 'ur-IN',
+    }
+    return map[loc] || 'en-IN'
+  }
+
   // Speech Recognition setup
-  const initSpeechRecognition = useCallback(() => {
+  const initSpeechRecognition = useCallback((lang: string) => {
     if (typeof window === 'undefined') return null
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) return null
@@ -136,12 +156,13 @@ export default function ChatbotPage() {
     const recognition = new SpeechRecognition()
     recognition.continuous = false
     recognition.interimResults = true
-    recognition.lang = navigator.language || 'en-IN'
+    recognition.lang = lang
     return recognition
   }, [])
 
   useEffect(() => {
-    const recognition = initSpeechRecognition()
+    const lang = getSpeechRecognitionLang(locale)
+    const recognition = initSpeechRecognition(lang)
     if (!recognition) {
       setMicError('Speech recognition not supported in this browser')
       return
@@ -160,7 +181,6 @@ export default function ChatbotPage() {
       if (event.error === 'not-allowed') {
         setMicError('Microphone permission denied. Please allow microphone access to use voice input.')
       } else if (event.error === 'no-speech') {
-        // No speech detected, just stop listening
         setIsListening(false)
       } else {
         setMicError(`Recognition error: ${event.error}`)
@@ -176,7 +196,7 @@ export default function ChatbotPage() {
       recognition.stop()
       recognitionRef.current = null
     }
-  }, [initSpeechRecognition])
+  }, [initSpeechRecognition, locale])
 
   const toggleListening = () => {
     const recognition = recognitionRef.current
@@ -214,7 +234,7 @@ export default function ChatbotPage() {
       },
       body: JSON.stringify({
         messages: apiMessages,
-        language: locale,
+        language: 'auto', // Let the API detect language from the message
       }),
     })
 

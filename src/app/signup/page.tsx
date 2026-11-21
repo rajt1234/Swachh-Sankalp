@@ -63,7 +63,7 @@ export default function SignupPage() {
     }
 
     const supabase = createClient()
-    const fullPhone = `+91${formData.phone}`
+    const fullPhone = formData.phone
 
     const { data: existingProfile, error: profileCheckError } = await supabase
       .from('profiles')

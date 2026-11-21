@@ -64,7 +64,7 @@ export default function ProfilePage() {
           id: user.id,
           email: user.email,
           full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-          phone: user.user_metadata?.phone || '',
+          phone: (user.user_metadata?.phone || '').replace(/^\+91/, ''),
           city: user.user_metadata?.city || '',
           state: user.user_metadata?.state || '',
           role,
@@ -479,7 +479,9 @@ export default function ProfilePage() {
                       {profile.phone && (
                         <div className="flex items-center gap-3 text-sm">
                           <Phone className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-600">+91 {profile.phone}</span>
+                          <span className="text-gray-600">
+                            {profile.phone.startsWith('+91') ? profile.phone : `+91 ${profile.phone}`}
+                          </span>
                         </div>
                       )}
                       {(profile.city || profile.state) && (

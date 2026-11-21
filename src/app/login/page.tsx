@@ -57,7 +57,7 @@ export default function LoginPage() {
               id: user.id,
               email: user.email,
               full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-              phone: user.user_metadata?.phone || '',
+              phone: (user.user_metadata?.phone || '').replace(/^\+91/, ''),
               city: user.user_metadata?.city || '',
               state: user.user_metadata?.state || '',
               role,
