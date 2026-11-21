@@ -1,12 +1,55 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useLanguage } from '@/lib/i18n'
-import { Send, Bot, User, Loader2 } from 'lucide-react'
+import { Send, Bot, User, Loader2, Mic, MicOff } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ChatMessageLocal } from '@/lib/types'
 import { getChatMessages, setChatMessages, subscribeChatMessages } from '@/lib/chatbot-store'
+
+// Type declarations for Web Speech API
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean
+  interimResults: boolean
+  lang: string
+  start(): void
+  stop(): void
+  onresult: (event: SpeechRecognitionEvent) => void
+  onerror: (event: SpeechRecognitionErrorEvent) => void
+  onend: () => void
+}
+
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number
+  results: SpeechRecognitionResultList
+}
+
+interface SpeechRecognitionResultList {
+  length: number
+  [index: number]: SpeechRecognitionResult
+}
+
+interface SpeechRecognitionResult {
+  length: number
+  [index: number]: SpeechRecognitionAlternative
+  isFinal: boolean
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string
+  confidence: number
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string
+  message: string
+}
+
+interface Window {
+  SpeechRecognition: new () => SpeechRecognition
+  webkitSpeechRecognition: new () => SpeechRecognition
+}
 
 interface Message extends ChatMessageLocal {}
 
@@ -33,8 +76,11 @@ export default function ChatbotPage() {
 
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+  const [micError, setMicError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
   const initializedRef = useRef(false)
 
   useEffect(() => {
@@ -80,6 +126,78 @@ export default function ChatbotPage() {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
     }
   }, [messages, isTyping])
+
+  // Speech Recognition setup
+  const initSpeechRecognition = useCallback(() => {
+    if (typeof window === 'undefined') return null
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognition) return null
+
+    const recognition = new SpeechRecognition()
+    recognition.continuous = false
+    recognition.interimResults = true
+    recognition.lang = navigator.language || 'en-IN'
+    return recognition
+  }, [])
+
+  useEffect(() => {
+    const recognition = initSpeechRecognition()
+    if (!recognition) {
+      setMicError('Speech recognition not supported in this browser')
+      return
+    }
+    recognitionRef.current = recognition
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let transcript = ''
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript
+      }
+      setInput(transcript)
+    }
+
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      if (event.error === 'not-allowed') {
+        setMicError('Microphone permission denied. Please allow microphone access to use voice input.')
+      } else if (event.error === 'no-speech') {
+        // No speech detected, just stop listening
+        setIsListening(false)
+      } else {
+        setMicError(`Recognition error: ${event.error}`)
+      }
+      setIsListening(false)
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+    }
+
+    return () => {
+      recognition.stop()
+      recognitionRef.current = null
+    }
+  }, [initSpeechRecognition])
+
+  const toggleListening = () => {
+    const recognition = recognitionRef.current
+    if (!recognition) {
+      setMicError('Speech recognition not supported in this browser')
+      return
+    }
+
+    if (isListening) {
+      recognition.stop()
+      setIsListening(false)
+    } else {
+      setMicError(null)
+      try {
+        recognition.start()
+        setIsListening(true)
+      } catch {
+        setMicError('Could not start recognition. Please try again.')
+      }
+    }
+  }
 
   const getAiResponse = async (allMessages: Message[], userMessage: string): Promise<string> => {
     const apiMessages = allMessages.map((msg) => ({
@@ -263,7 +381,7 @@ export default function ChatbotPage() {
                 e.preventDefault()
                 handleSend()
               }}
-              className="flex items-center gap-3"
+              className="flex items-center gap-2"
             >
               <input
                 ref={inputRef}
@@ -274,6 +392,32 @@ export default function ChatbotPage() {
                 disabled={isTyping}
                 className="flex-1 px-4 py-2.5 border border-gray-300 rounded-full focus:ring-2 focus:ring-saffron/50 focus:border-saffron transition-all disabled:opacity-50 text-base"
               />
+              <button
+                type="button"
+                onClick={toggleListening}
+                disabled={isTyping}
+                className={`p-2.5 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${
+                  isListening
+                    ? 'bg-saffron text-white animate-pulse shadow-lg shadow-saffron/30'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-saffron'
+                }`}
+                title={micError
+                  ? 'Microphone error'
+                  : !recognitionRef.current
+                  ? 'Speech recognition not supported'
+                  : isListening
+                  ? 'Click to stop listening'
+                  : 'Click to start voice input'}
+              >
+                {isListening ? (
+                  <Mic className="w-5 h-5" />
+                ) : (
+                  <MicOff className="w-5 h-5" />
+                )}
+              </button>
+              {micError && (
+                <span className="text-xs text-red-600 ml-1 truncate max-w-[200px]">{micError}</span>
+              )}
               <button
                 type="submit"
                 disabled={!input.trim() || isTyping}

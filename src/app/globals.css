@@ -101,11 +101,21 @@ body {
      animation: scroll-reel 40s linear infinite;
    }
 
-   .benefits-reel:hover {
-     animation-play-state: paused;
+.benefits-reel:hover {
+      animation-play-state: paused;
+    }
+   
+   /* Analytics cards hover effect - guaranteed fallback */
+   .analytics-stat-card {
+     transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
    }
-  
-  .animate-pulse-slow {
+   .analytics-stat-card:hover {
+     box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+     border-color: #FF9933;
+     transform: translateY(-4px) scale(1.01);
+   }
+ 
+   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   

@@ -140,7 +140,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="analytics-stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 transform transition-all duration-300 hover:shadow-xl hover:border-saffron hover:-translate-y-1 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">Total Complaints</p>
@@ -153,7 +153,7 @@ export default function AnalyticsPage() {
           <p className="text-sm text-green mt-2">+12% from last week</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="analytics-stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 transform transition-all duration-300 hover:shadow-xl hover:border-saffron hover:-translate-y-1 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">Resolved</p>
@@ -166,7 +166,7 @@ export default function AnalyticsPage() {
           <p className="text-sm text-green mt-2">87% resolution rate</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="analytics-stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 transform transition-all duration-300 hover:shadow-xl hover:border-saffron hover:-translate-y-1 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">Waste Collected</p>
@@ -179,7 +179,7 @@ export default function AnalyticsPage() {
           <p className="text-sm text-gray-500 mt-2">Daily average: 145kg</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="analytics-stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 transform transition-all duration-300 hover:shadow-xl hover:border-saffron hover:-translate-y-1 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">Recycling Rate</p>
