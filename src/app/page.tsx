@@ -1,7 +1,7 @@
 'use client'
 
 import { useLanguage } from '@/lib/i18n'
-import { Recycle, Trash2, MapPin, RefreshCw, Bot, Gift, Trophy, Users, Globe, Award, Leaf, Camera, TrendingUp, CheckCircle2 } from 'lucide-react'
+import { Recycle, Trash2, MapPin, RefreshCw, Bot, Gift, Trophy, Users, Globe, Award, Leaf, Camera, TrendingUp, CheckCircle2, Bell } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
@@ -49,6 +49,24 @@ const benefits = [
   'AI-Powered Guidance',
   'Reward-Based Engagement',
 ]
+
+function NotificationBell() {
+  return (
+    <Link
+      href="/alerts"
+      className="absolute top-5 right-4 z-40 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.15)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.2)] hover:scale-105 transition-all duration-300 text-saffron border border-saffron/20"
+      title="Alerts & Notifications"
+      aria-label="Alerts & Notifications"
+    >
+      <span className="relative">
+        <Bell className="w-5 h-5 animate-bell-ring" />
+        <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+          3
+        </span>
+      </span>
+    </Link>
+  )
+}
 
 const howItWorksCards = [
   {
@@ -247,6 +265,9 @@ export default function Home() {
             />
           ))}
         </div>
+
+        {/* Notification Bell */}
+        <NotificationBell />
       </section>
 
       {/* Stats Section */}
