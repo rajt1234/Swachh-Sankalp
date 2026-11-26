@@ -6,10 +6,11 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { User, Mail, Phone, MapPin, Shield, Award, FileText, LogOut, ArrowLeft, Camera, TrendingUp, Edit2, Save, X } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Shield, Award, FileText, LogOut, ArrowLeft, Camera, TrendingUp, Edit2, Save, X, Activity } from 'lucide-react'
 import type { Profile, Complaint, Reward } from '@/lib/types'
 import { INDIAN_STATES_LIST, INDIAN_STATE_DISTRICTS } from '@/lib/indian-states'
 import { generateUniqueUserId } from '@/lib/utils'
+import { PointsMilestoneTracker } from '@/components/profile/PointsMilestoneTracker'
 
 export default function ProfilePage() {
   const { t, locale } = useLanguage()
@@ -271,7 +272,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-saffron-light/30 via-white to-green-light/30 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <Link
             href="/"
@@ -282,322 +283,387 @@ export default function ProfilePage() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-          <div className="h-3 bg-gradient-to-r from-saffron via-white to-green" />
-
-          <div className="p-6 sm:p-8">
-            <div className="relative mb-6">
-              <div className="absolute top-0 right-0 bg-gradient-to-r from-navy to-navy-light text-white px-4 py-2 rounded-lg shadow-lg">
-                <p className="text-[10px] font-medium opacity-80">User ID</p>
-                <p className="text-sm font-bold tracking-wider">{profile.user_id}</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8">
-              <div className="relative group">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-saffron shadow-lg bg-gray-100">
-                  {profile.avatar_url ? (
-                    <Image
-                      src={profile.avatar_url}
-                      alt="Profile"
-                      width={128}
-                      height={128}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-saffron to-saffron-dark flex items-center justify-center text-white text-3xl sm:text-4xl font-bold">
-                      {profile.full_name?.charAt(0).toUpperCase() || profile.email?.charAt(0).toUpperCase()}
-                    </div>
-                  )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Column - Profile Section (8 columns on lg) */}
+          <div className="lg:col-span-8">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+              <div className="h-3 bg-gradient-to-r from-saffron via-white to-green" />
+              
+              <div className="p-6 sm:p-8">
+                <div className="relative mb-6">
+                  <div className="absolute top-0 right-0 bg-gradient-to-r from-navy to-navy-light text-white px-4 py-2 rounded-lg shadow-lg">
+                    <p className="text-[10px] font-medium opacity-80">User ID</p>
+                    <p className="text-sm font-bold tracking-wider">{profile.user_id}</p>
+                  </div>
                 </div>
-                <label className="absolute bottom-0 right-0 w-8 h-8 bg-saffron hover:bg-saffron-dark text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg transition-colors">
-                  <Camera className="w-4 h-4" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarUpload}
-                    disabled={uploading}
-                    className="hidden"
-                  />
-                </label>
-              </div>
 
-              <div className="text-center sm:text-left flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-navy mb-1">
-                  {profile.full_name || 'User'}
-                </h1>
-                <p className="text-gray-500 mb-2">{profile.email}</p>
-                <span className="inline-block px-3 py-1 bg-saffron/10 text-saffron-dark rounded-full text-sm font-medium capitalize">
-                  {profile.role}
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <div className="bg-gradient-to-br from-saffron to-saffron-dark rounded-xl p-4 text-white text-center">
-                <TrendingUp className="w-6 h-6 mx-auto mb-2 opacity-80" />
-                <p className="text-2xl font-bold">{totalPoints}</p>
-                <p className="text-xs opacity-80">{locale === 'hi' ? 'कुल पॉइंट्स' : 'Total Points'}</p>
-              </div>
-              <div className="bg-gradient-to-br from-green to-green-dark rounded-xl p-4 text-white text-center">
-                <FileText className="w-6 h-6 mx-auto mb-2 opacity-80" />
-                <p className="text-2xl font-bold">{complaints.length}</p>
-                <p className="text-xs opacity-80">{locale === 'hi' ? 'रिपोर्ट्स' : 'Reports'}</p>
-              </div>
-              <div className="bg-gradient-to-br from-navy to-navy-light rounded-xl p-4 text-white text-center">
-                <Award className="w-6 h-6 mx-auto mb-2 opacity-80" />
-                <p className="text-2xl font-bold">{rewards.length}</p>
-                <p className="text-xs opacity-80">{locale === 'hi' ? 'पुरस्कार' : 'Rewards'}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-navy flex items-center gap-2">
-                      <User className="w-5 h-5" />
-                      {locale === 'hi' ? 'व्यक्तिगत विवरण' : 'Personal Details'}
-                    </h2>
-                    {!isEditing && (
-                      <button
-                        onClick={() => setIsEditing(true)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm text-saffron hover:bg-saffron/10 rounded-lg transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                        {locale === 'hi' ? 'संपादित करें' : 'Edit'}
-                      </button>
-                    )}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8">
+                  <div className="relative group">
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-saffron shadow-lg bg-gray-100">
+                      {profile.avatar_url ? (
+                        <Image
+                          src={profile.avatar_url}
+                          alt="Profile"
+                          width={128}
+                          height={128}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-saffron to-saffron-dark flex items-center justify-center text-white text-3xl sm:text-4xl font-bold">
+                          {profile.full_name?.charAt(0).toUpperCase() || profile.email?.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <label className="absolute bottom-0 right-0 w-8 h-8 bg-saffron hover:bg-saffron-dark text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg transition-colors">
+                      <Camera className="w-4 h-4" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
 
-                  {isEditing ? (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
-                        <input
-                          type="text"
-                          value={formData.full_name}
-                          onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                          className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-saffron focus:border-saffron transition-all text-sm"
-                          placeholder="Enter your full name"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Phone</label>
-                        <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center px-3 py-2 border-2 border-gray-200 rounded-l-lg bg-gray-50 text-gray-500 font-medium text-sm">
-                            +91
-                          </span>
-                          <input
-                            type="tel"
-                            value={formData.phone}
-                            onChange={handlePhoneChange}
-                            className="flex-1 px-3 py-2 border-2 border-gray-200 rounded-r-lg focus:ring-2 focus:ring-saffron focus:border-saffron transition-all text-sm"
-                            placeholder="98765 43210"
-                            maxLength={10}
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">State</label>
-                          <select
-                            value={formData.state}
-                            onChange={handleStateChange}
-                            className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-saffron focus:border-saffron transition-all text-sm"
-                          >
-                            <option value="">Select State</option>
-                            {INDIAN_STATES_LIST.map((state) => (
-                              <option key={state} value={state}>
-                                {state}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">City</label>
-                          <select
-                            value={formData.city}
-                            onChange={handleCityChange}
-                            disabled={!formData.state}
-                            className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-saffron focus:border-saffron transition-all text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          >
-                            <option value="">Select City</option>
-                            {selectedDistricts.map((district) => (
-                              <option key={district} value={district}>
-                                {district}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <Mail className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">{profile.email}</span>
-                        <span className="text-xs text-gray-400">(Cannot be changed)</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <Shield className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600 capitalize">{profile.role}</span>
-                      </div>
-                      <div className="flex gap-2 mt-4">
-                        <button
-                          onClick={handleSaveProfile}
-                          disabled={saving}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
-                        >
-                          <Save className="w-4 h-4" />
-                          {saving ? 'Saving...' : (locale === 'hi' ? 'सहेजें' : 'Save')}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsEditing(false)
-                            setFormData({
-                              full_name: profile.full_name || '',
-                              phone: profile.phone || '',
-                              city: profile.city || '',
-                              state: profile.state || '',
-                            })
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-                        >
-                          <X className="w-4 h-4" />
-                          {locale === 'hi' ? 'रद्द करें' : 'Cancel'}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 text-sm">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">{profile.full_name || 'Not set'}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <Mail className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">{profile.email}</span>
-                      </div>
-                      {profile.phone && (
-                        <div className="flex items-center gap-3 text-sm">
-                          <Phone className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-600">
-                            {profile.phone.startsWith('+91') ? profile.phone : `+91 ${profile.phone}`}
-                          </span>
-                        </div>
-                      )}
-                      {(profile.city || profile.state) && (
-                        <div className="flex items-center gap-3 text-sm">
-                          <MapPin className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-600">
-                            {[profile.city, profile.state].filter(Boolean).join(', ')}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-3 text-sm">
-                        <Shield className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600 capitalize">{profile.role}</span>
-                      </div>
-                    </div>
-                  )}
+                  <div className="text-center sm:text-left flex-1">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-navy mb-1">
+                      {profile.full_name || 'User'}
+                    </h1>
+                    <p className="text-gray-500 mb-2">{profile.email}</p>
+                    <span className="inline-block px-3 py-1 bg-saffron/10 text-saffron-dark rounded-full text-sm font-medium capitalize">
+                      {profile.role}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <h2 className="text-lg font-semibold text-navy mb-4 flex items-center gap-2">
-                    <Award className="w-5 h-5" />
-                    {locale === 'hi' ? 'हालिया पुरस्कार' : 'Recent Rewards'}
-                  </h2>
-                  {rewards.length === 0 ? (
-                    <p className="text-sm text-gray-500">{locale === 'hi' ? 'अभी तक कोई पुरस्कार नहीं' : 'No rewards yet'}</p>
-                  ) : (
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {rewards.slice(0, 10).map((reward) => (
-                        <div key={reward.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                  <div className="bg-gradient-to-br from-saffron to-saffron-dark rounded-xl p-4 text-white text-center">
+                    <TrendingUp className="w-6 h-6 mx-auto mb-2 opacity-80" />
+                    <p className="text-2xl font-bold">{totalPoints}</p>
+                    <p className="text-xs opacity-80">{locale === 'hi' ? 'कुल पॉइंट्स' : 'Total Points'}</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-green to-green-dark rounded-xl p-4 text-white text-center">
+                    <FileText className="w-6 h-6 mx-auto mb-2 opacity-80" />
+                    <p className="text-2xl font-bold">{complaints.length}</p>
+                    <p className="text-xs opacity-80">{locale === 'hi' ? 'रिपोर्ट्स' : 'Reports'}</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-navy to-navy-light rounded-xl p-4 text-white text-center">
+                    <Award className="w-6 h-6 mx-auto mb-2 opacity-80" />
+                    <p className="text-2xl font-bold">{rewards.length}</p>
+                    <p className="text-xs opacity-80">{locale === 'hi' ? 'पुरस्कार' : 'Rewards'}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                  <div className="space-y-6">
+                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-navy flex items-center gap-2">
+                          <User className="w-5 h-5" />
+                          {locale === 'hi' ? 'व्यक्तिगत विवरण' : 'Personal Details'}
+                        </h2>
+                        {!isEditing && (
+                          <button
+                            onClick={() => setIsEditing(true)}
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm text-saffron hover:bg-saffron/10 rounded-lg transition-colors"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                            {locale === 'hi' ? 'संपादित करें' : 'Edit'}
+                          </button>
+                        )}
+                      </div>
+
+                      {isEditing ? (
+                        <div className="space-y-3">
                           <div>
-                            <p className="text-sm font-medium text-navy">{reward.reason || 'Bonus'}</p>
-                            <p className="text-xs text-gray-500">
-                              {new Date(reward.created_at).toLocaleDateString('en-IN', {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric',
-                              })}
-                            </p>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
+                            <input
+                              type="text"
+                              value={formData.full_name}
+                              onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-saffron focus:border-saffron transition-all text-sm"
+                              placeholder="Enter your full name"
+                            />
                           </div>
-                          <span className="text-sm font-semibold text-green">+{reward.points} pts</span>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Phone</label>
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center px-3 py-2 border-2 border-gray-200 rounded-l-lg bg-gray-50 text-gray-500 font-medium text-sm">
+                                +91
+                              </span>
+                              <input
+                                type="tel"
+                                value={formData.phone}
+                                onChange={handlePhoneChange}
+                                className="flex-1 px-3 py-2 border-2 border-gray-200 rounded-r-lg focus:ring-2 focus:ring-saffron focus:border-saffron transition-all text-sm"
+                                placeholder="98765 43210"
+                                maxLength={10}
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-700 mb-1">State</label>
+                              <select
+                                value={formData.state}
+                                onChange={handleStateChange}
+                                className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-saffron focus:border-saffron transition-all text-sm"
+                              >
+                                <option value="">Select State</option>
+                                {INDIAN_STATES_LIST.map((state) => (
+                                  <option key={state} value={state}>
+                                    {state}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-700 mb-1">City</label>
+                              <select
+                                value={formData.city}
+                                onChange={handleCityChange}
+                                disabled={!formData.state}
+                                className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-saffron focus:border-saffron transition-all text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+                              >
+                                <option value="">Select City</option>
+                                {selectedDistricts.map((district) => (
+                                  <option key={district} value={district}>
+                                    {district}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 text-sm">
+                            <Mail className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-600">{profile.email}</span>
+                            <span className="text-xs text-gray-400">(Cannot be changed)</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-sm">
+                            <Shield className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-600 capitalize">{profile.role}</span>
+                          </div>
+                          <div className="flex gap-2 mt-4">
+                            <button
+                              onClick={handleSaveProfile}
+                              disabled={saving}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
+                            >
+                              <Save className="w-4 h-4" />
+                              {saving ? 'Saving...' : (locale === 'hi' ? 'सहेजें' : 'Save')}
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsEditing(false)
+                                setFormData({
+                                  full_name: profile.full_name || '',
+                                  phone: profile.phone || '',
+                                  city: profile.city || '',
+                                  state: profile.state || '',
+                                })
+                              }}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                            >
+                              <X className="w-4 h-4" />
+                              {locale === 'hi' ? 'रद्द करें' : 'Cancel'}
+                            </button>
+                          </div>
                         </div>
-                      ))}
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3 text-sm">
+                            <User className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-600">{profile.full_name || 'Not set'}</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-sm">
+                            <Mail className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-600">{profile.email}</span>
+                          </div>
+                          {profile.phone && (
+                            <div className="flex items-center gap-3 text-sm">
+                              <Phone className="w-4 h-4 text-gray-400" />
+                              <span className="text-gray-600">
+                                {profile.phone.startsWith('+91') ? profile.phone : `+91 ${profile.phone}`}
+                              </span>
+                            </div>
+                          )}
+                          {(profile.city || profile.state) && (
+                            <div className="flex items-center gap-3 text-sm">
+                              <MapPin className="w-4 h-4 text-gray-400" />
+                              <span className="text-gray-600">
+                                {[profile.city, profile.state].filter(Boolean).join(', ')}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-3 text-sm">
+                            <Shield className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-600 capitalize">{profile.role}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
 
-              <div>
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <h2 className="text-lg font-semibold text-navy mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    {locale === 'hi' ? 'मेरी रिपोर्ट्स' : 'My Reports'}
-                  </h2>
-                  {complaints.length === 0 ? (
-                    <p className="text-sm text-gray-500">{locale === 'hi' ? 'अभी तक कोई रिपोर्ट नहीं' : 'No reports yet'}</p>
-                  ) : (
-                    <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                      {complaints.map((complaint) => (
-                        <div key={complaint.id} className="p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1 min-w-0">
-                              {complaint.tracking_id && (
-                                <p className="text-xs font-medium text-saffron mb-1 font-mono tracking-wide">
-                                  {complaint.tracking_id}
+                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                      <h2 className="text-lg font-semibold text-navy mb-4 flex items-center gap-2">
+                        <Award className="w-5 h-5" />
+                        {locale === 'hi' ? 'हालिया पुरस्कार' : 'Recent Rewards'}
+                      </h2>
+                      {rewards.length === 0 ? (
+                        <p className="text-sm text-gray-500">{locale === 'hi' ? 'अभी तक कोई पुरस्कार नहीं' : 'No rewards yet'}</p>
+                      ) : (
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {rewards.slice(0, 10).map((reward) => (
+                            <div key={reward.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                              <div>
+                                <p className="text-sm font-medium text-navy">{reward.reason || 'Bonus'}</p>
+                                <p className="text-xs text-gray-500">
+                                  {new Date(reward.created_at).toLocaleDateString('en-IN', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric',
+                                  })}
+                                </p>
+                              </div>
+                              <span className="text-sm font-semibold text-green">+{reward.points} pts</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                      <h2 className="text-lg font-semibold text-navy mb-4 flex items-center gap-2">
+                        <FileText className="w-5 h-5" />
+                        {locale === 'hi' ? 'मेरी रिपोर्ट्स' : 'My Reports'}
+                      </h2>
+                      {complaints.length === 0 ? (
+                        <p className="text-sm text-gray-500">{locale === 'hi' ? 'अभी तक कोई रिपोर्ट नहीं' : 'No reports yet'}</p>
+                      ) : (
+                        <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                          {complaints.map((complaint) => (
+                            <div key={complaint.id} className="p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1 min-w-0">
+                                  {complaint.tracking_id && (
+                                    <p className="text-xs font-medium text-saffron mb-1 font-mono tracking-wide">
+                                      {complaint.tracking_id}
+                                    </p>
+                                  )}
+                                  <p className="text-sm font-medium text-navy line-clamp-2">
+                                    {complaint.description || 'Waste Report'}
+                                  </p>
+                                </div>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(complaint.status)}`}>
+                                  {getStatusLabel(complaint.status)}
+                                </span>
+                              </div>
+                              {complaint.location_text && (
+                                <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {complaint.location_text}
                                 </p>
                               )}
-                              <p className="text-sm font-medium text-navy line-clamp-2">
-                                {complaint.description || 'Waste Report'}
+                              <p className="text-xs text-gray-400">
+                                {new Date(complaint.created_at).toLocaleDateString('en-IN', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
                               </p>
                             </div>
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(complaint.status)}`}>
-                              {getStatusLabel(complaint.status)}
-                            </span>
-                          </div>
-                          {complaint.location_text && (
-                            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {complaint.location_text}
-                            </p>
-                          )}
-                          <p className="text-xs text-gray-400">
-                            {new Date(complaint.created_at).toLocaleDateString('en-IN', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
+                          ))}
                         </div>
-                      ))}
+                      )}
                     </div>
-                  )}
+                  </div>
+                </div>
+
+                <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={handleLogout}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors font-medium border border-red-200"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    {locale === 'hi' ? 'लॉग आउट' : 'Sign Out'}
+                  </button>
+                  <Link
+                    href="/"
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-saffron to-saffron-dark text-white rounded-xl hover:shadow-lg transition-all font-medium"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                    {locale === 'hi' ? 'मुख्य पृष्ठ पर जाएं' : 'Back to Home'}
+                  </Link>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={handleLogout}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors font-medium border border-red-200"
-              >
-                <LogOut className="w-5 h-5" />
-                {locale === 'hi' ? 'लॉग आउट' : 'Sign Out'}
-              </button>
-              <Link
-                href="/"
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-saffron to-saffron-dark text-white rounded-xl hover:shadow-lg transition-all font-medium"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                {locale === 'hi' ? 'मुख्य पृष्ठ पर जाएं' : 'Back to Home'}
-              </Link>
+              <div className="h-3 bg-gradient-to-r from-saffron via-white to-green" />
             </div>
           </div>
 
-          <div className="h-3 bg-gradient-to-r from-saffron via-white to-green" />
+          {/* Right Column - Points Milestone Tracker (4 columns on lg) */}
+          <div className="lg:col-span-4 hidden lg:block">
+            {/* Monitor Button - Only for Municipality and Recycler */}
+            {profile && ['municipality', 'recycler'].includes(profile.role) && (
+              <Link
+                href="/monitor"
+                className="mb-6 block"
+              >
+                <button
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-navy to-navy-light text-white rounded-xl hover:shadow-xl hover:from-navy-light hover:to-navy transition-all duration-300 border border-navy/20"
+                >
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-lg">{t('nav.monitor')}</p>
+                    <p className="text-white/80 text-sm">
+                      {locale === 'hi' 
+                        ? 'निगरानी और प्रबंधन डैशबोर्ड' 
+                        : 'Monitoring & Management Dashboard'
+                      }
+                    </p>
+                  </div>
+                  <ArrowLeft className="w-5 h-5 opacity-80" />
+                </button>
+              </Link>
+            )}
+            <PointsMilestoneTracker totalPoints={totalPoints} />
+          </div>
+        </div>
+
+        {/* Mobile Milestone Tracker - visible on mobile below profile */}
+        <div className="lg:hidden mt-6">
+          {/* Monitor Button - Only for Municipality and Recycler (Mobile) */}
+          {profile && ['municipality', 'recycler'].includes(profile.role) && (
+            <Link
+              href="/monitor"
+              className="mb-4 block"
+            >
+              <button
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-navy to-navy-light text-white rounded-xl hover:shadow-xl hover:from-navy-light hover:to-navy transition-all duration-300 border border-navy/20"
+              >
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Activity className="w-6 h-6" />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-lg">{t('nav.monitor')}</p>
+                  <p className="text-white/80 text-sm">
+                    {locale === 'hi' 
+                      ? 'निगरानी और प्रबंधन डैशबोर्ड' 
+                      : 'Monitoring & Management Dashboard'
+                    }
+                  </p>
+                </div>
+                <ArrowLeft className="w-5 h-5 opacity-80" />
+              </button>
+            </Link>
+          )}
+          <PointsMilestoneTracker totalPoints={totalPoints} />
         </div>
       </div>
     </div>
