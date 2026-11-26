@@ -9,7 +9,6 @@ interface PointsMilestoneTrackerProps {
 
 const MILESTONE_STEP = 1000
 const MAX_MILESTONES = 10
-const TRACKER_HEIGHT = 850 // Fixed height in pixels - increased to show 5 milestones at once
 
 export function PointsMilestoneTracker({ totalPoints }: PointsMilestoneTrackerProps) {
   const { locale } = useLanguage()
@@ -41,7 +40,7 @@ export function PointsMilestoneTracker({ totalPoints }: PointsMilestoneTrackerPr
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden flex flex-col" style={{ height: TRACKER_HEIGHT }}>
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden flex flex-col h-[550px] lg:h-[850px]">
       {/* Fixed Header - Always Visible */}
       <div className="bg-gradient-to-r from-saffron to-saffron-dark px-6 py-5 flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
